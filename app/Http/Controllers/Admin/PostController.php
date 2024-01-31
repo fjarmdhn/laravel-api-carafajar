@@ -53,9 +53,14 @@ class PostController extends Controller
     /** 
      * Display the specified resource.
      */
-    public function show(Post $post): PostResource
+    public function show($id)
     {
-        $post = Post::with(['category:id,name', 'user:id,name'])->findOrFail($post->id);
+        $post = Post::with(['category:id,name', 'user:id,name'])->find($id);
+
+        if (!$post) {
+            return response()->json(['message' => 'Post not found'], 404);
+        }
+
         return new PostResource($post);
     }
 
@@ -65,14 +70,45 @@ class PostController extends Controller
 
     public function update(PostRequest $request, Post $post)
     {
+        if (!$post) {
+            return response()->json(['errors' => ['message' => ['Post not found.']]], 404);
+        }
+
+        // Validasi data dari request
+        $validatedData = $request->validated();
+
+        // Perbarui excerpt jika perlu
+        $validatedData['excerpt'] = Str::limit(strip_tags($request->content), 100);
+
+        // Buat slug dari judul
+        $slug = Str::slug($validatedData['title']);
+
+        // Cek apakah slug sudah digunakan oleh post lain, jika iya, tambahkan nomor acak
+        $count = 1;
+        while (Post::where('slug', $slug)->where('id', '!=', $post->id)->exists()) {
+            $slug = Str::slug($validatedData['title']) . '-' . $count;
+            $count++;
+        }
+
+        $validatedData['slug'] = $slug;
+
+        // Update data post
+        $post->update($validatedData);
+
+        return response()->json(['message' => 'Berhasil Diperbarui']);
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Post $post)
+    public function destroy($id)
     {
-        $post = Post::findOrFail($post->id);
+        $post = Post::with(['category:id,name', 'user:id,name'])->find($id);
+
+        if (!$post) {
+            return response()->json(['message' => 'Post not found'], 404);
+        }
         $post->delete();
         return response()->json(['message' => 'Berhasil Dihapus']);
     }

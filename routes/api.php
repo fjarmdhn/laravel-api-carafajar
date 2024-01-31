@@ -24,7 +24,7 @@ Route::prefix('admin')
         Route::get('/posts', [PostController::class, 'index']);
         Route::get('/posts/{post:id}', [PostController::class, 'show']);
         Route::post('/posts', [PostController::class, 'store']);
-        Route::patch('/posts/{post:id}', [PostController::class, 'update']);
+        Route::put('/posts/{post:id}', [PostController::class, 'update']);
         Route::delete('/posts/{post:id}', [PostController::class, 'destroy']);
     });
 

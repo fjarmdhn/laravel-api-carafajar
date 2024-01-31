@@ -50,9 +50,14 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(post $post)
+    public function show($id)
     {
-        $post = Post::with(['category:id,name', 'user:id,name'])->where('user_id', auth()->user()->id)->findOrFail($post->id);
+        $post = Post::with(['category:id,name', 'user:id,name'])->where('user_id', auth()->user()->id)->find($id);
+
+        if (!$post) {
+            return response()->json(['message' => 'Post not found'], 404);
+        }
+
         return new PostResource($post);
     }
 
