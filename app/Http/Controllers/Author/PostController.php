@@ -64,16 +64,51 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, post $post)
+    public function update(PostRequest $request, post $post)
     {
-        //
+        if (!$post) {
+            return response()->json(['errors' => ['message' => ['Post not found.']]], 404);
+        }
+
+        // Validasi data dari request
+        $validatedData = $request->validated();
+
+        // Perbarui excerpt jika perlu
+        $validatedData['excerpt'] = Str::limit(strip_tags($request->content), 100);
+
+        // Buat slug dari judul
+        $slug = Str::slug($validatedData['title']);
+
+        // Cek apakah slug sudah digunakan oleh post lain, jika iya, tambahkan nomor acak
+        $count = 1;
+        while (Post::where('slug', $slug)->where('id', '!=', $post->id)->exists()) {
+            $slug = Str::slug($validatedData['title']) . '-' . $count;
+            $count++;
+        }
+
+        $validatedData['slug'] = $slug;
+
+        // Update data post
+        $post->update($validatedData);
+
+        return response()->json(['message' => 'Berhasil Diperbarui']);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(post $post)
+    public function destroy($id)
     {
-        //
+        $post = Post::with(['category:id,name', 'user:id,name'])
+            ->where('user_id', auth()->user()->id)
+            ->find($id);
+
+        if (!$post) {
+            return response()->json(['message' => 'Post not found'], 404);
+        }
+
+        $post->delete();
+
+        return response()->json(['message' => 'Berhasil Dihapus']);
     }
 }

@@ -34,6 +34,8 @@ Route::prefix('author')
         Route::get('/posts', [AuthorPostController::class, 'index']);
         Route::get('/posts/{post:id}', [AuthorPostController::class, 'show']);
         Route::post('/posts', [AuthorPostController::class, 'store']);
+        Route::put('/posts/{post:id}', [AuthorPostController::class, 'update']);
+        Route::delete('/posts/{post:id}', [AuthorPostController::class, 'destroy']);
     });
 
 
