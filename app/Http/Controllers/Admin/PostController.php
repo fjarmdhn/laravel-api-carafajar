@@ -58,7 +58,13 @@ class PostController extends Controller
         $post = Post::with(['category:id,name', 'user:id,name'])->find($id);
 
         if (!$post) {
-            return response()->json(['message' => 'Post not found'], 404);
+            throw new HttpResponseException(response()->json([
+                'errors' => [
+                    "message" => [
+                        "Post not found"
+                    ]
+                ]
+            ])->setStatusCode(404));
         }
 
         return new PostResource($post);
@@ -68,10 +74,18 @@ class PostController extends Controller
      * Update the specified resource in storage.
      */
 
-    public function update(PostRequest $request, Post $post)
+    public function update(PostRequest $request, $id)
     {
+        $post = Post::with(['category:id,name', 'user:id,name'])->find($id);
+
         if (!$post) {
-            return response()->json(['errors' => ['message' => ['Post not found.']]], 404);
+            throw new HttpResponseException(response()->json([
+                'errors' => [
+                    "message" => [
+                        "Post not found"
+                    ]
+                ]
+            ])->setStatusCode(404));
         }
 
         // Validasi data dari request
@@ -107,8 +121,15 @@ class PostController extends Controller
         $post = Post::with(['category:id,name', 'user:id,name'])->find($id);
 
         if (!$post) {
-            return response()->json(['message' => 'Post not found'], 404);
+            throw new HttpResponseException(response()->json([
+                'errors' => [
+                    "message" => [
+                        "Post not found"
+                    ]
+                ]
+            ])->setStatusCode(404));
         }
+
         $post->delete();
         return response()->json(['message' => 'Berhasil Dihapus']);
     }
