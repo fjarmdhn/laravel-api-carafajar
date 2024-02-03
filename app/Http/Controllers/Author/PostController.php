@@ -27,26 +27,30 @@ class PostController extends Controller
      */
     public function store(PostRequest $request)
     {
-        $validateData = $request->validated();
+        $validatedData = $request->validated();
 
-        $validateData['user_id'] = auth()->user()->id;
-        $validateData['excerpt'] = Str::limit(strip_tags($request->content), 100);
+        $validatedData['user_id'] = auth()->user()->id;
+        $validatedData['excerpt'] = Str::limit(strip_tags($request->content), 100);
 
         // Buat slug dari judul
-        $slug = Str::slug($validateData['title']);
+        $slug = Str::slug($validatedData['title']);
 
         // Cek apakah slug sudah digunakan, jika iya, tambahkan nomor acak
         $count = 1;
         while (Post::where('slug', $slug)->exists()) {
-            $slug = Str::slug($validateData['title']) . '-' . $count;
+            $slug = Str::slug($validatedData['title']) . '-' . $count;
             $count++;
         }
 
-        $validateData['slug'] = $slug;
+        $validatedData['slug'] = $slug;
 
-        Post::create($validateData);
+        // Tambahkan post baru
+        $post = Post::create($validatedData);
 
-        return response()->json(['message' => 'Berhasil Ditambahkan']);
+        return response()->json([
+            'message' => 'Berhasil Ditambahkan',
+            'data' => new PostResource($post->loadMissing('category:id,name', 'user:id,name'))
+        ]);
     }
 
     /**
@@ -109,7 +113,10 @@ class PostController extends Controller
         // Update data post
         $post->update($validatedData);
 
-        return response()->json(['message' => 'Berhasil Diperbarui']);
+        return response()->json([
+            'message' => 'Berhasil Diubah',
+            'data' => new PostResource($post->loadMissing('category:id,name', 'user:id,name'))
+        ]);
     }
 
     /**
@@ -133,6 +140,10 @@ class PostController extends Controller
 
         $post->delete();
 
-        return response()->json(['message' => 'Berhasil Dihapus']);
+        // return response()->json(['message' => 'Berhasil Dihapus']);
+        return response()->json([
+            'message' => 'Berhasil Dihapus',
+            'data' => new PostResource($post->loadMissing('category:id,name', 'user:id,name'))
+        ]);
     }
 }

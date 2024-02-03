@@ -19,8 +19,10 @@ class PostResource extends JsonResource
         // return parent::toArray($request);
         return [
             'id' => $this->id,
-            'user' => $this->whenLoaded('user'),
-            'category' => $this->whenLoaded('category'),
+            // 'user' => $this->whenLoaded('user'),
+            // 'category' => $this->whenLoaded('category'),
+            'user' => $this->whenLoaded('user', new UserResource($this->user)),
+            'category' => $this->whenLoaded('category', new CategoryResource($this->category)),
             'title' => $this->title,
             'slug' => $this->slug,
             'excerpt' => $this->excerpt,
