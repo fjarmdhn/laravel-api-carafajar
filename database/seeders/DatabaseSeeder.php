@@ -34,6 +34,11 @@ class DatabaseSeeder extends Seeder
             'role' => 'author',
         ]);
 
+        \App\Models\User::factory(10)->create();
+        \App\Models\Category::factory(10)->create();
+        \App\Models\Post::factory(10)->create();
+
+
         // Seeder untuk Categories
         \App\Models\Category::create([
             'name' => 'Technology',

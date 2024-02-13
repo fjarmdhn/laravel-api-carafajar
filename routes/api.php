@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CommentController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\Author\CategoryController as AuthorCategoryController;
@@ -34,6 +35,8 @@ Route::prefix('admin')
         Route::get('/category/{category:id}', [CategoryController::class, 'show']);
         Route::put('/category/{categories:id}', [CategoryController::class, 'update']);
         Route::delete('/category/{category:id}', [CategoryController::class, 'destroy']);
+
+        Route::get('/comment', [CommentController::class, 'index']);
     });
 
 Route::prefix('author')
